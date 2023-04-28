@@ -1,5 +1,7 @@
 pipeline {
     agent { label 'MAVEN_JDK8' }
+    triggers { cron ('H/15 * * * *') }
+    triggers { pollSCM ('H/30 * * * *') }
     stages {
         stage('vcs') {
             steps {
@@ -11,14 +13,15 @@ pipeline {
             tools {
                 jdk 'JDK_8_UBUNTU'
             }
+            steps {
+                sh 'mvn package'
+            }
         }
         stage('post build') {
             steps {
                 archiveArtifacts artifacts: '**/target/gameoflife.war',
                                  onlyIfSuccessful: true
                 junit testResults: '**/surefire-reports/TEST-*.xml'
-                
             }
         }
     }
-}
